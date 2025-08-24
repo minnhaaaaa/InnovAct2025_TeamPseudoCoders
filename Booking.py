@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file, url_for
 from flask_cors import CORS
 import mysql.connector as msql
 import secrets, io, base64, qrcode
+WINDOW_MINUTES = 20  # allow validation only in the last 20 minutes before departure
 
 # ---------- DB ----------
 DB = dict(host='localhost', user='root', password='tiger', database='railway')  # your creds
@@ -101,8 +102,6 @@ def qr_image(ticket_id):
     return send_file(io.BytesIO(png), mimetype="image/png",
                      download_name=f"{ticket_id}.png", as_attachment=False)
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
 @app.post("/validate")
 def validate_and_mark():
@@ -113,28 +112,56 @@ def validate_and_mark():
 
     con = get_conn(); cur = con.cursor()
 
-    # Atomically mark as used only if it exists AND is currently unused
-    cur.execute("UPDATE tickets SET used=1 WHERE ticket_id=%s AND used=0", (tid,))
+    # Atomically mark used=1 only if:
+    #   - ticket exists
+    #   - currently unused
+    #   - 0 <= minutes until departure <= WINDOW_MINUTES
+    cur.execute("""
+        UPDATE tickets
+        SET used = 1
+        WHERE ticket_id = %s
+          AND used = 0
+          AND TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(travel_date, ' ', travel_time))
+              BETWEEN 0 AND %s
+    """, (tid, WINDOW_MINUTES))
     con.commit()
     updated = cur.rowcount
 
     if updated == 1:
-        # success: it existed and was unused; now marked used
         cur.close(); con.close()
         return {"valid": True, "ticket_id": tid}, 200
 
-    # Not updated: either not found or already used — check which
-    cur.execute("SELECT used FROM tickets WHERE ticket_id=%s", (tid,))
+    # Not updated: find out why
+    cur.execute("""
+        SELECT used,
+               TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(travel_date, ' ', travel_time)) AS mins_left
+        FROM tickets WHERE ticket_id=%s
+    """, (tid,))
     row = cur.fetchone()
     cur.close(); con.close()
 
     if row is None:
         return {"valid": False, "ticket_id": tid, "reason": "not found"}, 404
-    else:
+
+    used, mins_left = row
+    if used == 1:
         return {"valid": False, "ticket_id": tid, "reason": "already used"}, 409
+    if mins_left is None:
+        return {"valid": False, "ticket_id": tid, "reason": "time error"}, 500
+    if mins_left > WINDOW_MINUTES:
+        return {"valid": False, "ticket_id": tid, "reason": "too early",
+                "mins_until_departure": int(mins_left), "window_minutes": WINDOW_MINUTES}, 403
+    if mins_left < 0:
+        return {"valid": False, "ticket_id": tid, "reason": "after departure",
+                "mins_after_departure": int(-mins_left)}, 403
+
+    # Fallback
+    return {"valid": False, "ticket_id": tid, "reason": "unknown"}, 400
 
 
 
+if __name__ == "__main__":
+    app.run(debug=True)
 '''
 IN CASE OF POST , THE FRONTEND OR THE USER CAN SEND SOMETHING IN JSON FORMAT
 GET → read-only fetch, no side effects
