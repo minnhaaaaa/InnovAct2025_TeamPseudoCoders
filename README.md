@@ -1,1 +1,2 @@
 # InnovAct2025_TeamPseudoCoders
+On February 15th 2025, eighteen lives were lost due to a crowd crush at the New Delhi railway station, which left several others injured too. One of the major reasons for the same, is due to poor crowd management. Platform entry is chaotic and slow, as tickets are manually checked, which is bound to errors. Overcrowding, ticket less travel and frauds have become a common occurrence in India's railway station. There is no automatic one time validation and crowd flow is not throttled per time slot.
