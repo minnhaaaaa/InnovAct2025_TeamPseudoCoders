@@ -1,15 +1,23 @@
-import streamlit as st
-import pandas as pd
-import random
+from datetime import date
 import re
-import requests                     
-from datetime import datetime, date, time
+import io
+import pandas as pd
+import requests
+import cv2
+import av
+import numpy as np
+import streamlit as st
+from pyzbar.pyzbar import decode
+from streamlit_webrtc import (
+    webrtc_streamer,
+    VideoProcessorBase,
+    WebRtcMode
+)
 
 #Configuration
 BACKEND = "http://127.0.0.1:5000"    # change if your Flask runs elsewhere
-RTC_CONFIGURATION = RTCConfiguration(
-    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-)
+RTC_CONFIGURATION = {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+
 
 # Load stations from CSV
 csv_path = r"C:\Users\Asus\Downloads\stations.csv" #change path for stations.csv
@@ -158,3 +166,4 @@ with tab2:
             st.session_state.checked = True
     else:
         status_display.info("Waiting for QR code…")
+
