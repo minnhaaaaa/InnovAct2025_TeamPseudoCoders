@@ -1,5 +1,8 @@
 # InnovAct2025_TeamPseudoCoders
+
 This hackathon involved participants coming up with their own problem statements and proposing solutions to it, within a time frame of 8 hours.
 Our problem was the poor crowd management in railway stations. Platform entry is chaotic and slow, as tickets are manually checked, which is bound to errors. Overcrowding, ticket less travel and frauds have become a common occurrence in India's railway station. There is no automatic one time validation and crowd flow is not throttled per time slot.
-We proposed the building of a low cost scalable IoT based smart entry system to reduce ticketless travel and overcrowding in railway stations. The user books tickets digitally and receive unique QR. For entry to the platform, an IoT gate verifies the QR via Flask with MYSQL API and auto validates it for one time use. Once validated, the gate is opened for the passenger to go through. We simulated the IoT gate using a simple servo circuit. The backend enforces simple capacity caps, by only allowing passengers to enter the platform, twenty minutes before the time slot to prevent overcrowding. 
+
+We proposed the building of a low cost scalable IoT based smart entry system to reduce ticketless travel and overcrowding in railway stations. The user books tickets digitally and receive unique QR. For entry to the platform, an IoT gate verifies the QR via Flask with MYSQL API and auto validates it for one time use. Once validated, the gate is opened for the passenger to go through. We simulated the IoT gate using a simple servo circuit. The backend enforces simple capacity caps, by only allowing passengers to enter the platform, twenty minutes before the time slot to prevent overcrowding. The frontend was developed using streamlit.
+
 The team consisted of 5 members: Minha Shameer, Afrin S Anish, Dhruvi Dronawat, Diya Abdul Shyam and Bhakti Wagh.
