@@ -162,7 +162,5 @@ def validate_and_mark():
 
 if __name__ == "__main__":
     app.run(debug=True)
-'''
-IN CASE OF POST , THE FRONTEND OR THE USER CAN SEND SOMETHING IN JSON FORMAT
-GET → read-only fetch, no side effects
-'''
+
+
